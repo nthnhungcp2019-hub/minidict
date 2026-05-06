@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Từ Điển Tiếng Anh Nhí - Global Success</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Thư viện tạo hiệu ứng pháo giấy (Confetti) -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body { font-family: 'Lexend', sans-serif; }
+        
+        /* --- CSS TỐI ƯU CHO HIỆU ỨNG LẬT THẺ 3D --- */
+        .card-flip { 
+            perspective: 1000px; 
+        }
+        .card-inner {
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+            -webkit-transform-style: preserve-3d; 
+            cursor: pointer;
+        }
+        .card-inner.flipped { 
+            transform: rotateY(180deg); 
+        }
+        .card-front, .card-back {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden; 
+            border-radius: 1.5rem; 
+        }
+        .card-back { 
+            transform: rotateY(180deg); 
+        }
+    </style>
+</head>
+<body class="bg-blue-50 min-h-screen p-4 md:p-8">
+
+    <!-- Header -->
+    <header class="text-center mb-8">
+        <h1 class="text-3xl md:text-4xl font-bold text-blue-600 mb-2">🌟 Từ Điển Nhí Thông Minh 🌟</h1>
+        <p class="text-gray-600">Nghe chuẩn - Đọc hay - Nhận pháo giấy liền tay!</p>
+    </header>
+
+    <!-- Điều khiển (Filter & Search) -->
+    <div class="max-w-4xl mx-auto mb-8 flex flex-col md:flex-row gap-4">
+        <input type="text" id="searchInput" placeholder="Tìm từ vựng tiếng Anh hoặc nghĩa tiếng Việt..." 
+            class="flex-1 p-3 rounded-2xl border-2 border-blue-200 focus:border-blue-400 outline-none shadow-sm text-lg">
+        
+        <select id="unitFilter" class="p-3 rounded-2xl border-2 border-blue-200 bg-white text-blue-600 font-semibold shadow-sm text-lg">
+            <option value="all">Tất cả Unit</option>
+            <option value="1">Unit 1: All About Me!</option>
+            <option value="2">Unit 2: Our Homes</option>
+            <option value="3">Unit 3: My Foreign Friends</option>
+            <option value="4">Unit 4: Our Free-time Activities</option>
+            <option value="5">Unit 5: My Future Job</option>
+            <option value="6">Unit 6: Our School Rooms</option>
+            <option value="7">Unit 7: Our Favourite School Activities</option>
+            <option value="8">Unit 8: In Our Classroom</option>
+            <option value="9">Unit 9: Our Outdoor Activities</option>
+            <option value="10">Unit 10: Our School Trip</option>
+        </select>
+    </div>
+
+    <!-- Danh sách từ vựng -->
+    <div id="dictionaryGrid" class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Code JS sẽ tự đổ dữ liệu vào đây -->
+    </div>
+
+    <script>
+        // 1. Dữ liệu toàn bộ 79 từ vựng Unit 1 - 10
+        const vocabulary = [
+            // UNIT 1
+            { id: 1, unit: 1, word: "class", ipa: "/klɑːs/", meaning: "lớp học", example: "I am in class 5A.", color: "bg-red-100" },
+            { id: 2, unit: 1, word: "city", ipa: "/ˈsɪti/", meaning: "thành phố", example: "I live in a big city.", color: "bg-blue-100" },
+            { id: 3, unit: 1, word: "countryside", ipa: "/ˈkʌntrisaɪd/", meaning: "nông thôn", example: "My grandparents live in the countryside.", color: "bg-green-100" },
+            { id: 4, unit: 1, word: "dolphin", ipa: "/ˈdɒlfɪn/", meaning: "cá heo", example: "The dolphin is jumping.", color: "bg-indigo-100" },
+            { id: 5, unit: 1, word: "pink", ipa: "/pɪŋk/", meaning: "màu hồng", example: "She has a pink dress.", color: "bg-pink-100" },
+            { id: 6, unit: 1, word: "sandwich", ipa: "/ˈsænwɪtʃ/", meaning: "bánh mì kẹp", example: "I eat a sandwich for breakfast.", color: "bg-yellow-100" },
+            { id: 7, unit: 1, word: "table tennis", ipa: "/ˈteɪbl ˈtenɪs/", meaning: "môn bóng bàn", example: "We play table tennis at break time.", color: "bg-orange-100" },
+
+            // UNIT 2
+            { id: 8, unit: 2, word: "building", ipa: "/ˈbɪldɪŋ/", meaning: "tòa nhà", example: "That is a tall building.", color: "bg-gray-200" },
+            { id: 9, unit: 2, word: "flat", ipa: "/flæt/", meaning: "căn hộ", example: "I live in a flat.", color: "bg-teal-100" },
+            { id: 10, unit: 2, word: "house", ipa: "/haʊs/", meaning: "căn nhà", example: "This is my house.", color: "bg-yellow-200" },
+            { id: 11, unit: 2, word: "tower", ipa: "/ˈtaʊər/", meaning: "tòa tháp", example: "The tower is very high.", color: "bg-indigo-200" },
+            { id: 12, unit: 2, word: "address", ipa: "/əˈdres/", meaning: "địa chỉ", example: "What is your address?", color: "bg-red-200" },
+            { id: 13, unit: 2, word: "street", ipa: "/striːt/", meaning: "con phố/đường", example: "He lives on Nguyen Du street.", color: "bg-gray-100" },
+            { id: 14, unit: 2, word: "twenty-three", ipa: "/ˌtwen.tiˈθriː/", meaning: "số 23", example: "My flat is number twenty-three.", color: "bg-blue-100" },
+            { id: 15, unit: 2, word: "thirty-eight", ipa: "/ˌθɜː.tiˈeɪt/", meaning: "số 38", example: "She lives at thirty-eight.", color: "bg-green-100" },
+            { id: 151, unit: 2, word: "ninety-three", ipa: "/ˌnaɪn.tiˈθriː/", meaning: "số 93", example: "His granddad is ninety-three.", color: "bg-purple-100" },
+            { id: 152, unit: 2, word: "one hundred and sixteen", ipa: "/wʌn ˈhʌn.drəd ənd ˌsɪkˈstiːn/", meaning: "số 116", example: "Room one hundred and sixteen.", color: "bg-pink-100" },
+
+            // UNIT 3
+            { id: 16, unit: 3, word: "American", ipa: "/əˈmerɪkən/", meaning: "người Mỹ", example: "He is American.", color: "bg-blue-200" },
+            { id: 17, unit: 3, word: "Australian", ipa: "/ɒˈstreɪliən/", meaning: "người Úc", example: "She is Australian.", color: "bg-yellow-100" },
+            { id: 18, unit: 3, word: "Japanese", ipa: "/ˌdʒæpəˈniːz/", meaning: "người Nhật", example: "My friend is Japanese.", color: "bg-red-100" },
+            { id: 19, unit: 3, word: "Malaysian", ipa: "/məˈleɪ.ʒən/", meaning: "người Mã Lai", example: "They are Malaysian.", color: "bg-green-100" },
+            { id: 20, unit: 3, word: "active", ipa: "/ˈæk.tɪv/", meaning: "năng động, nhanh nhẹn", example: "He is an active boy.", color: "bg-orange-100" },
+            { id: 21, unit: 3, word: "clever", ipa: "/ˈklevər/", meaning: "thông minh", example: "She is a clever student.", color: "bg-teal-100" },
+            { id: 22, unit: 3, word: "friendly", ipa: "/ˈfrend.li/", meaning: "thân thiện", example: "Our new teacher is friendly.", color: "bg-pink-100" },
+            { id: 23, unit: 3, word: "helpful", ipa: "/ˈhelp.fəl/", meaning: "hay giúp đỡ, tốt bụng", example: "Tom is very helpful.", color: "bg-purple-100" },
+
+            // UNIT 4
+            { id: 24, unit: 4, word: "go for a walk", ipa: "/ɡoʊ fɔːr ə wɔːk/", meaning: "đi dạo bộ", example: "I go for a walk in the park.", color: "bg-green-200" },
+            { id: 25, unit: 4, word: "play the violin", ipa: "/pleɪ ðə ˌvaɪəˈlɪn/", meaning: "chơi đàn vi-ô-lông", example: "She plays the violin beautifully.", color: "bg-yellow-200" },
+            { id: 26, unit: 4, word: "surf the Internet", ipa: "/sɜːrf ði ˈɪntərnet/", meaning: "lướt In-tơ-nét", example: "I surf the Internet every day.", color: "bg-blue-100" },
+            { id: 27, unit: 4, word: "water the flowers", ipa: "/ˈwɔː.tər ðə ˈflaʊ.ərz/", meaning: "tưới hoa", example: "I help my mom water the flowers.", color: "bg-pink-200" },
+            { id: 28, unit: 4, word: "always", ipa: "/ˈɔːlweɪz/", meaning: "luôn luôn", example: "I always do my homework.", color: "bg-purple-100" },
+            { id: 29, unit: 4, word: "often", ipa: "/ˈɒf.ən/", meaning: "hay, thường", example: "We often play football.", color: "bg-red-100" },
+            { id: 30, unit: 4, word: "sometimes", ipa: "/ˈsʌm.taɪmz/", meaning: "thỉnh thoảng", example: "Sometimes I read a book.", color: "bg-orange-100" },
+            { id: 31, unit: 4, word: "usually", ipa: "/ˈjuː.ʒu.ə.li/", meaning: "thường thường", example: "I usually get up early.", color: "bg-teal-100" },
+
+            // UNIT 5
+            { id: 32, unit: 5, word: "firefighter", ipa: "/ˈfaɪərfaɪtər/", meaning: "lính cứu hỏa", example: "He wants to be a firefighter.", color: "bg-red-200" },
+            { id: 33, unit: 5, word: "gardener", ipa: "/ˈɡɑː.dən.ər/", meaning: "người làm vườn", example: "My grandpa is a gardener.", color: "bg-green-200" },
+            { id: 34, unit: 5, word: "reporter", ipa: "/rɪˈpɔːrtər/", meaning: "phóng viên", example: "She is a TV reporter.", color: "bg-blue-200" },
+            { id: 35, unit: 5, word: "writer", ipa: "/ˈraɪ.tər/", meaning: "nhà văn", example: "He is a famous writer.", color: "bg-yellow-100" },
+            { id: 36, unit: 5, word: "grow flowers", ipa: "/ɡroʊ ˈflaʊ.ərz/", meaning: "trồng hoa", example: "We grow flowers in the garden.", color: "bg-pink-100" },
+            { id: 37, unit: 5, word: "report the news", ipa: "/rɪˈpɔːt ðə njuːz/", meaning: "đưa (tin) tức", example: "The reporter reports the news.", color: "bg-gray-200" },
+            { id: 38, unit: 5, word: "teach children", ipa: "/tiːtʃ ˈtʃɪldrən/", meaning: "dạy trẻ em", example: "A teacher teaches children.", color: "bg-orange-200" },
+            { id: 39, unit: 5, word: "write stories", ipa: "/raɪt ˈstɔː.riz/", meaning: "viết truyện", example: "I want to write stories.", color: "bg-purple-200" },
+
+            // UNIT 6
+            { id: 40, unit: 6, word: "ground floor", ipa: "/ɡraʊnd flɔːr/", meaning: "tầng trệt", example: "The art room is on the ground floor.", color: "bg-yellow-100" },
+            { id: 41, unit: 6, word: "first floor", ipa: "/fɜːrst flɔːr/", meaning: "tầng thứ nhất", example: "The library is on the first floor.", color: "bg-blue-100" },
+            { id: 42, unit: 6, word: "second floor", ipa: "/ˈsek.ənd flɔːr/", meaning: "tầng hai", example: "My classroom is on the second floor.", color: "bg-green-100" },
+            { id: 43, unit: 6, word: "third floor", ipa: "/θɜːd flɔːr/", meaning: "tầng thứ ba", example: "The music room is on the third floor.", color: "bg-pink-100" },
+            { id: 44, unit: 6, word: "go along", ipa: "/ɡoʊ əˈlɒŋ/", meaning: "đi dọc theo", example: "Go along the corridor.", color: "bg-orange-100" },
+            { id: 45, unit: 6, word: "go downstairs", ipa: "/ɡoʊ ˌdaʊnˈsterz/", meaning: "xuống gác", example: "Let's go downstairs.", color: "bg-red-100" },
+            { id: 46, unit: 6, word: "go past", ipa: "/ɡoʊ pɑːst/", meaning: "đi qua", example: "Go past the library.", color: "bg-teal-100" },
+            { id: 47, unit: 6, word: "go upstairs", ipa: "/ɡoʊ ˌʌpˈsterz/", meaning: "lên gác", example: "We go upstairs to the computer room.", color: "bg-purple-100" },
+
+            // UNIT 7
+            { id: 48, unit: 7, word: "do projects", ipa: "/duː ˈprɒdʒ.ekts/", meaning: "làm các bài tập dự án", example: "We do projects in groups.", color: "bg-blue-200" },
+            { id: 49, unit: 7, word: "play games", ipa: "/pleɪ ɡeɪmz/", meaning: "chơi trò chơi", example: "We play games at break time.", color: "bg-yellow-200" },
+            { id: 50, unit: 7, word: "read books", ipa: "/riːd bʊks/", meaning: "đọc sách", example: "I like to read books.", color: "bg-green-200" },
+            { id: 51, unit: 7, word: "solve maths problems", ipa: "/sɒlv mæθs ˈprɒb.ləmz/", meaning: "giải các bài toán", example: "She can solve maths problems fast.", color: "bg-red-200" },
+            { id: 52, unit: 7, word: "difficult", ipa: "/ˈdɪf.ɪ.kəlt/", meaning: "khó", example: "This exercise is difficult.", color: "bg-gray-200" },
+            { id: 53, unit: 7, word: "easy", ipa: "/ˈiː.zi/", meaning: "dễ", example: "The test is very easy.", color: "bg-pink-100" },
+            { id: 54, unit: 7, word: "fun", ipa: "/fʌn/", meaning: "sự vui thích", example: "Learning English is fun.", color: "bg-orange-100" },
+            { id: 55, unit: 7, word: "useful", ipa: "/ˈjuːs.fəl/", meaning: "có ích, hữu ích", example: "This book is useful.", color: "bg-teal-200" },
+            { id: 56, unit: 7, word: "interesting", ipa: "/ˈɪntrəstɪŋ/", meaning: "thú vị", example: "The story is interesting.", color: "bg-purple-200" },
+
+            // UNIT 8
+            { id: 57, unit: 8, word: "above", ipa: "/əˈbʌv/", meaning: "ở phía trên", example: "The clock is above the board.", color: "bg-blue-100" },
+            { id: 58, unit: 8, word: "beside", ipa: "/bɪˈsaɪd/", meaning: "bên cạnh", example: "The chair is beside the desk.", color: "bg-green-100" },
+            { id: 59, unit: 8, word: "in front of", ipa: "/ɪn frʌnt əv/", meaning: "ở phía trước", example: "The teacher stands in front of the class.", color: "bg-yellow-100" },
+            { id: 60, unit: 8, word: "under", ipa: "/ˈʌn.dər/", meaning: "ở phía dưới", example: "The cat is under the table.", color: "bg-red-100" },
+            { id: 61, unit: 8, word: "crayon", ipa: "/ˈkreɪ.ɒn/", meaning: "bút sáp màu", example: "I have a red crayon.", color: "bg-pink-200" },
+            { id: 62, unit: 8, word: "glue stick", ipa: "/ˈɡluː stɪk/", meaning: "keo dán", example: "I need a glue stick.", color: "bg-purple-100" },
+            { id: 63, unit: 8, word: "pencil sharpener", ipa: "/ˈpen.səl ˌʃɑː.pən.ər/", meaning: "cái gọt bút chì", example: "Where is my pencil sharpener?", color: "bg-orange-200" },
+            { id: 64, unit: 8, word: "set square", ipa: "/ˈset ˌskweər/", meaning: "cái ê-ke", example: "Use a set square to draw.", color: "bg-teal-100" },
+
+            // UNIT 9
+            { id: 65, unit: 9, word: "aquarium", ipa: "/əˈkweə.ri.əm/", meaning: "bể kính nuôi cá", example: "We saw sharks at the aquarium.", color: "bg-blue-200" },
+            { id: 66, unit: 9, word: "campsite", ipa: "/ˈkæmpsaɪt/", meaning: "địa điểm cắm trại", example: "Our tent is at the campsite.", color: "bg-green-200" },
+            { id: 67, unit: 9, word: "funfair", ipa: "/ˈfʌn.feər/", meaning: "hội chợ giải trí", example: "We played games at the funfair.", color: "bg-yellow-200" },
+            { id: 68, unit: 9, word: "theatre", ipa: "/ˈθɪə.tər/", meaning: "nhà hát", example: "We watched a play at the theatre.", color: "bg-red-200" },
+            { id: 69, unit: 9, word: "dance around the campfire", ipa: "/dɑːns əˈraʊnd ðə ˈkæmp.faɪər/", meaning: "nhảy, múa xung quanh lửa trại", example: "They dance around the campfire.", color: "bg-orange-200" },
+            { id: 70, unit: 9, word: "listen to music", ipa: "/ˈlɪsn tʊ ˈmjuːzɪk/", meaning: "nghe nhạc", example: "I listen to music every night.", color: "bg-purple-100" },
+            { id: 71, unit: 9, word: "play chess", ipa: "/pleɪ tʃes/", meaning: "chơi cờ", example: "My brother and I play chess.", color: "bg-gray-200" },
+            { id: 72, unit: 9, word: "watch the fish", ipa: "/wɒtʃ ðə fɪʃ/", meaning: "xem cá", example: "We watch the fish swimming.", color: "bg-teal-200" },
+
+            // UNIT 10
+            { id: 73, unit: 10, word: "Ba Na Hills", ipa: "/bɑː nɑː hɪlz/", meaning: "Bà Nà Hills", example: "We went to Ba Na Hills.", color: "bg-teal-100" },
+            { id: 74, unit: 10, word: "Bai Dinh Pagoda", ipa: "/baɪ dɪn pəˈɡoʊ.də/", meaning: "Chùa Bái Đính", example: "They visited Bai Dinh Pagoda.", color: "bg-orange-100" },
+            { id: 75, unit: 10, word: "Hoan Kiem Lake", ipa: "/hwɑːn kɪəm leɪk/", meaning: "Hồ Hoàn Kiếm", example: "Hoan Kiem Lake is beautiful.", color: "bg-blue-100" },
+            { id: 76, unit: 10, word: "Suoi Tien Theme Park", ipa: "/suː.ɔɪ tɪən θiːm pɑːk/", meaning: "Công viên giải trí Suối Tiên", example: "We had fun at Suoi Tien Theme Park.", color: "bg-pink-200" },
+            { id: 77, unit: 10, word: "plant trees", ipa: "/plɑːnt triːz/", meaning: "trồng cây", example: "We plant trees in the garden.", color: "bg-green-200" },
+            { id: 78, unit: 10, word: "visit the old buildings", ipa: "/ˈvɪz.ɪt ði oʊld ˈbɪl.dɪŋz/", meaning: "thăm các tòa nhà cổ", example: "They visit the old buildings.", color: "bg-purple-200" },
+            { id: 79, unit: 10, word: "walk around the lake", ipa: "/wɔːk əˈraʊnd ðə leɪk/", meaning: "đi bộ xung quanh hồ", example: "We walk around the lake in the morning.", color: "bg-yellow-100" }
+        ];
+
+        const grid = document.getElementById('dictionaryGrid');
+        const searchInput = document.getElementById('searchInput');
+        const unitFilter = document.getElementById('unitFilter');
+
+        // 2. Hàm phát âm (Web Speech API) - Cho nút Nghe
+        function speak(text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.85; // Tốc độ đọc chậm, phù hợp cho học sinh
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // 3. Hàm thu âm và nhận diện giọng nói - Kèm pháo giấy (Cho nút Đọc thử)
+        function startListening(targetWord, btnElement) {
+            // Kiểm tra trình duyệt có hỗ trợ không
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("Rất tiếc! Điện thoại hoặc trình duyệt của bạn chưa hỗ trợ tính năng thu âm. Hãy dùng trình duyệt Chrome nhé!");
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-US'; // Chỉnh sang tiếng Anh để bắt từ chuẩn xác
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            const originalHTML = btnElement.innerHTML;
+            const originalClass = btnElement.className;
+
+            // Đổi giao diện nút khi đang thu âm
+            btnElement.innerHTML = '🎙️ Đang nghe...';
+            btnElement.className = 'bg-red-500 text-white px-4 py-2 rounded-full shadow-md flex items-center gap-1 text-sm font-semibold animate-pulse';
+
+            recognition.start();
+
+            recognition.onresult = function(event) {
+                // Làm sạch chuỗi kết quả và từ gốc (chuyển chữ thường, bỏ dấu chấm phẩy)
+                const speechResult = event.results[0][0].transcript.toLowerCase().replace(/[.,!?]/g, '').trim();
+                const cleanTargetWord = targetWord.toLowerCase().replace(/[.,!?]/g, '').trim();
+
+                if (speechResult === cleanTargetWord) {
+                    // Đọc ĐÚNG
+                    btnElement.innerHTML = '🎉 Giỏi quá!';
+                    btnElement.className = 'bg-yellow-500 text-white px-4 py-2 rounded-full shadow-md flex items-center gap-1 text-sm font-semibold';
+                    
+                    // Hiệu ứng pháo giấy
+                    confetti({
+                        particleCount: 150,
+                        spread: 80,
+                        origin: { y: 0.6 },
+                        colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff']
+                    });
+                } else {
+                    // Đọc SAI
+                    btnElement.innerHTML = '❌ Thử lại nha!';
+                    btnElement.className = 'bg-gray-500 text-white px-4 py-2 rounded-full shadow-md flex items-center gap-1 text-sm font-semibold';
+                }
+
+                // Trả lại trạng thái nút sau 3 giây
+                setTimeout(() => {
+                    btnElement.innerHTML = originalHTML;
+                    btnElement.className = originalClass;
+                }, 3000);
+            };
+
+            recognition.onerror = function(event) {
+                btnElement.innerHTML = '⚠️ Lỗi mic';
+                btnElement.className = 'bg-gray-500 text-white px-4 py-2 rounded-full shadow-md flex items-center gap-1 text-sm font-semibold';
+                setTimeout(() => {
+                    btnElement.innerHTML = originalHTML;
+                    btnElement.className = originalClass;
+                }, 2000);
+            };
+        }
+
+        // 4. Hàm hiển thị danh sách từ
+        function renderWords(data) {
+            grid.innerHTML = '';
+            data.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card-flip h-64';
+                
+                card.innerHTML = `
+                    <div class="card-inner w-full h-full relative" onclick="this.classList.toggle('flipped')">
+                        
+                        <!-- MẶT TRƯỚC: Tiếng Anh -->
+                        <div class="card-front absolute inset-0 ${item.color} shadow-lg p-6 flex flex-col justify-between items-center text-center">
+                            <span class="bg-white px-3 py-1 rounded-full text-xs font-bold text-blue-500 shadow-sm">Unit ${item.unit}</span>
+                            <div>
+                                <h2 class="text-3xl font-bold text-gray-800">${item.word}</h2>
+                                <p class="text-blue-600 text-lg italic mt-1">${item.ipa}</p>
+                            </div>
+                            <!-- Khu vực chứa 2 nút Nghe và Đọc -->
+                            <div class="flex gap-2 w-full justify-center">
+                                <button onclick="event.stopPropagation(); speak('${item.word.replace(/'/g, "\\'")}')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full transition-transform active:scale-90 shadow-md flex items-center gap-1 text-sm font-semibold">
+                                    🔊 Nghe
+                                </button>
+                                <button onclick="event.stopPropagation(); startListening('${item.word.replace(/'/g, "\\'")}', this)" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full transition-transform active:scale-90 shadow-md flex items-center gap-1 text-sm font-semibold">
+                                    🎙️ Đọc thử
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- MẶT SAU: Hiển thị Tiếng Việt -->
+                        <div class="card-back absolute inset-0 bg-white border-4 border-blue-200 shadow-lg p-6 flex flex-col justify-center items-center text-center">
+                            <!-- Hiển thị Nghĩa Tiếng Việt -->
+                            <h3 class="text-2xl font-bold text-red-500 mb-3">${item.meaning}</h3>
+                            
+                            <!-- Hiển thị Câu ví dụ -->
+                            <p class="text-gray-700 text-base italic leading-relaxed">"${item.example}"</p>
+                            
+                            <div class="mt-6 text-sm text-gray-400 bg-gray-50 px-3 py-1 rounded-full">
+                                🔄 Chạm để quay lại
+                            </div>
+                        </div>
+
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // 5. Logic tìm kiếm và lọc
+        function filterData() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedUnit = unitFilter.value;
+
+            const filtered = vocabulary.filter(item => {
+                const matchesSearch = item.word.toLowerCase().includes(searchTerm) || item.meaning.toLowerCase().includes(searchTerm);
+                const matchesUnit = selectedUnit === 'all' || item.unit.toString() === selectedUnit;
+                return matchesSearch && matchesUnit;
+            });
+            renderWords(filtered);
+        }
+
+        searchInput.addEventListener('input', filterData);
+        unitFilter.addEventListener('change', filterData);
+
+        // Khởi tạo lần đầu
+        renderWords(vocabulary);
+    </script>
+</body>
+</html>
